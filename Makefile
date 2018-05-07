@@ -4,16 +4,16 @@ PREFIX ?= "/opt/project"
 all: build
 
 external:
-	@GOPATH=$(GOPATH) GOOS=linux go get ./...
+	@GOPATH=$(GOPATH)  go get ./...
 
 build: external
-	@GOPATH=$(GOPATH) CGO_ENABLED=0 GOOS=linux go install ./...
+	@GOPATH=$(GOPATH) CGO_ENABLED=0  go install ./...
 
 doc:
-	@GOPATH=$(GOPATH) GOOS=linux godoc -http=:6060
+	@GOPATH=$(GOPATH)  godoc -http=:6060
 
 test: external
-	@GOPATH=$(GOPATH) GOOS=linux GOCACHE=off go test -v dccn.nl/project/...
+	@GOPATH=$(GOPATH)  GOCACHE=off go test -v dccn.nl/project/...
 
 install: build
 	@install -D $(GOPATH)/bin/* $(PREFIX)/bin
