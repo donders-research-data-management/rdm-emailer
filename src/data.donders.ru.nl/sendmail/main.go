@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/smtp"
 	"os"
@@ -15,7 +14,6 @@ import (
 
 const (
 	EMAIL_NOREPLY = "no-reply@donders.ru.nl"
-	EMAIL_SUPPORT = "datasupport@donders.ru.nl"
 )
 
 type User struct {
@@ -29,7 +27,13 @@ type ConfigSMTP struct {
 	SmtpAuth smtp.Auth
 }
 
-var opts_userlist *string
+type Template struct {
+	Subject string
+	Body string
+}
+
+var opts_userList *string
+var opts_fromAddr *string
 var opts_smtpHost *string
 var opts_smtpPort *int
 var opts_smtpUser *string
@@ -38,7 +42,8 @@ var opts_smtpPass *string
 var config ConfigSMTP
 
 func init() {
-	opts_userlist = flag.String("l", "", "set path of file containing list of user emails and names.")
+	opts_userList = flag.String("l", "", "set path of file containing list of user emails and names.")
+	opts_fromAddr = flag.String("f", EMAIL_NOREPLY, "set the sender's email address.")
 	opts_smtpHost = flag.String("h", "smtp-auth.ru.nl", "set the network hostname of the SMTP server.")
 	opts_smtpPort = flag.Int("p", 25, "set the network port of the SMTP server.")
 	opts_smtpUser = flag.String("u", "", "set SMTP username for PLAIN authentication.")
@@ -81,6 +86,34 @@ func readUsers(path string) ([]User, error) {
 	return users, nil
 }
 
+func readTemplate(path string) (*Template, error) {
+
+	template := Template{Subject: "", Body: ""}
+
+	fd, err := os.Open(path)
+
+	if err != nil {
+		return nil, err
+	}
+	defer fd.Close()
+
+	liner := bufio.NewScanner(fd)
+	for liner.Scan() {
+		l := liner.Text()
+		if strings.HasPrefix(l, "Subject:") {
+			template.Subject = strings.TrimSpace(strings.TrimPrefix(l, "Subject:"))
+			continue
+		}
+		template.Body += fmt.Sprintf("%s\n", l)
+	}
+
+	if err := liner.Err(); err != nil {
+		return nil, err
+	}
+
+	return &template, nil
+}
+
 // sendMail sends email content via a SMTP server.
 func sendMail(config ConfigSMTP, from, to, subject, body string) error {
 
@@ -88,8 +121,7 @@ func sendMail(config ConfigSMTP, from, to, subject, body string) error {
 	addr := fmt.Sprintf("%s:%d", config.SmtpHost, config.SmtpPort)
 
 	// RFC-822 style email message
-	msg := []byte("To: " + EMAIL_SUPPORT + "\r\n" +
-		"Subject: " + subject + "\r\n" +
+	msg := []byte("Subject: " + subject + "\r\n" +
 		"\r\n" +
 		body + "\r\n")
 
@@ -98,7 +130,8 @@ func sendMail(config ConfigSMTP, from, to, subject, body string) error {
 
 func main() {
 
-	users, err := readUsers(*opts_userlist)
+	// reads list of users for sending emails
+	users, err := readUsers(*opts_userList)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -109,27 +142,44 @@ func main() {
 		log.Fatal("missing mail content template")
 	}
 
-	// reads template
-	mailbody, err := ioutil.ReadFile(args[0])
+	// reads subject and body templates
+	tmpl, err := readTemplate(args[0])
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// creates template parser
-	tmpl, err := template.New("mailbody").Parse(string(mailbody))
+	// creates template parsers
+	pSubj, err := template.New("subj").Parse(string(tmpl.Subject))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	pBody, err := template.New("body").Parse(string(tmpl.Body))
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// loop over users to send out an email for each user
 	for _, u := range users {
-		w := bytes.NewBuffer([]byte{})
-		err := tmpl.Execute(w, u)
+
+		// derive subject from template
+		subj := bytes.NewBuffer([]byte{})
+		err := pSubj.Execute(subj, u)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("%s\n", string(w.Bytes()))
+
+		// derive body from template
+		body := bytes.NewBuffer([]byte{})
+		err = pBody.Execute(body, u)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		// sends email
-		//sendMail(config, EMAIL_NOREPLY, u.Email, "", string(buf))
+		err = sendMail(config, *opts_fromAddr, u.Email, string(subj.Bytes()), string(body.Bytes()))
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
