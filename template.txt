@@ -1,0 +1,6 @@
+Subject: a test email to {{.Email}}
+Hello {{.Name}},
+
+This is a test email from rdm-emailer.
+
+Best regards, the support team
