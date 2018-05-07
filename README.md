@@ -27,19 +27,19 @@ The command-line options are provided with `-h` option:
 
 ```bash
 
-Usage: ./bin/sendmail [OPTIONS] <emailTemplate>
+Usage: ./bin/sendmail [OPTIONS] <template>
 
 OPTIONS:
-  -f string
+  -f email
     	set the sender's email address. (default "no-reply@donders.ru.nl")
-  -l string
-    	set path of file containing list of user emails and names.
-  -n string
+  -l path
+    	set path of the file containing a list of recipients.
+  -n hostname
     	set the network hostname of the SMTP server. (default "smtp-auth.ru.nl")
-  -p int
+  -p port
     	set the network port of the SMTP server. (default 25)
-  -s string
+  -s password
     	set SMTP password for PLAIN authentication.
-  -u string
+  -u username
     	set SMTP username for PLAIN authentication.
 ```

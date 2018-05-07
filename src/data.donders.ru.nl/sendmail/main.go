@@ -45,18 +45,18 @@ var opts_smtpPass *string
 var config ConfigSMTP
 
 func usage() {
-	fmt.Printf("\nUsage: %s [OPTIONS] <emailTemplate>\n", os.Args[0])
+	fmt.Printf("\nUsage: %s [OPTIONS] <template>\n", os.Args[0])
 	fmt.Printf("\nOPTIONS:\n")
 	flag.PrintDefaults()
 }
 
 func init() {
-	opts_userList = flag.String("l", "", "set path of file containing list of user emails and names.")
-	opts_fromAddr = flag.String("f", EMAIL_NOREPLY, "set the sender's email address.")
-	opts_smtpHost = flag.String("n", "smtp-auth.ru.nl", "set the network hostname of the SMTP server.")
-	opts_smtpPort = flag.Int("p", 25, "set the network port of the SMTP server.")
-	opts_smtpUser = flag.String("u", "", "set SMTP username for PLAIN authentication.")
-	opts_smtpPass = flag.String("s", "", "set SMTP password for PLAIN authentication.")
+	opts_userList = flag.String("l", "", "set `path` of the file containing a list of recipients.")
+	opts_fromAddr = flag.String("f", EMAIL_NOREPLY, "set the sender's `email` address.")
+	opts_smtpHost = flag.String("n", "smtp-auth.ru.nl", "set the network `hostname` of the SMTP server.")
+	opts_smtpPort = flag.Int("p", 25, "set the network `port` of the SMTP server.")
+	opts_smtpUser = flag.String("u", "", "set SMTP `username` for PLAIN authentication.")
+	opts_smtpPass = flag.String("s", "", "set SMTP `password` for PLAIN authentication.")
 	flag.Usage = usage
 	flag.Parse()
 
