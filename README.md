@@ -1,5 +1,5 @@
 # rdm-emailer
-Sending bulk emails to DR system users via SMTP.
+Sending emails to DR system users via SMTP.
 
 ## Requirement
 
