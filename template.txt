@@ -1,3 +1,9 @@
+{{/*
+	The line started with "Subject:" is taken as subject of the email.
+	The rest of lines are considered as the message "Body".
+	The variable {{.Name}} will be replaced by actual username.
+	The variable {{.Email}} will be replaced by actual email address.
+*/}}
 Subject: a test email to {{.Email}}
 Hello {{.Name}},
 
