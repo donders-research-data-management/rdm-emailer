@@ -16,8 +16,8 @@ const (
 	EMAIL_NOREPLY = "no-reply@donders.ru.nl"
 )
 
-// User is a data structure of email recipient.
-type User struct {
+// Recipient is a data structure of email recipient.
+type Recipient struct {
 	Email string
 	Name  string
 }
@@ -71,12 +71,12 @@ func init() {
 	log.SetOutput(os.Stderr)
 }
 
-// readUsers reads and constructs User objects from the given path of a file.
+// readRecipients reads and constructs Recipient objects from the given path of a file.
 // Each line of the file contains two fields separated by spaces, or tabs.  The two fields are
 // 1) email address, 2) username.
-func readUsers(path string) ([]User, error) {
+func readRecipients(path string) ([]Recipient, error) {
 
-	users := []User{}
+	recipients := []Recipient{}
 
 	fd, err := os.Open(path)
 
@@ -100,14 +100,14 @@ func readUsers(path string) ([]User, error) {
 			log.Warn(fmt.Sprint("invalid recipient: %s", l))
 			continue
 		}
-		users = append(users, User{Email: uinfo[0], Name: uinfo[1]})
+		recipients = append(recipients, Recipient{Email: uinfo[0], Name: uinfo[1]})
 	}
 
 	if err := liner.Err(); err != nil {
 		return nil, err
 	}
 
-	return users, nil
+	return recipients, nil
 }
 
 // readTemplate reads email content template from the given path of a file.
@@ -154,8 +154,8 @@ func sendMail(config ConfigSMTP, from, to, subject, body string) error {
 
 func main() {
 
-	// reads list of users for sending emails
-	users, err := readUsers(*opts_userList)
+	// reads list of recipients for sending emails
+	recipients, err := readRecipients(*opts_userList)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -183,8 +183,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// loop over users to send out an email for each user
-	for _, u := range users {
+	// loop over recipients to send out an email for each user
+	for _, u := range recipients {
 
 		// derive subject from template
 		subj := bytes.NewBuffer([]byte{})

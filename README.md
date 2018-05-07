@@ -15,12 +15,12 @@ The executables will be created in the `bin/` directory.
 
 ## Usage
 
-Firstly define an email template, an example can be found in the [template.txt](template.txt) file.  Secondly make a recipient list as shown in the example file [users.txt](users.txt).
+Firstly define an email template, an example can be found in the [template.txt](template.txt) file.  Secondly make a recipient list as shown in the example file [recipients.txt](recipients.txt).
 
 Run the following command to send the email to all recipients:
 
 ```bash
-$ ./bin/sendmail -f from_address -l users.txt -n smtp_host -p smtp_port -u smtp_username -s smtp_password template.txt
+$ ./bin/sendmail -f from_address -l recipients.txt -n smtp_host -p smtp_port -u smtp_username -s smtp_password template.txt
 ```
 
 The command-line options are provided with `-h` option:
