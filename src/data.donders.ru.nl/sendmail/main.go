@@ -5,28 +5,31 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	"log"
 	"net/smtp"
 	"os"
 	"strings"
 	"text/template"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
 	EMAIL_NOREPLY = "no-reply@donders.ru.nl"
 )
 
+// User is a data structure of email recipient.
 type User struct {
 	Email string
 	Name  string
 }
 
+// ConfigSMTP is a data structure of connecting to SMTP server.
 type ConfigSMTP struct {
 	SmtpHost string
 	SmtpPort int
 	SmtpAuth smtp.Auth
 }
 
+// Template is a data structure of email content.
 type Template struct {
 	Subject string
 	Body string
@@ -57,9 +60,11 @@ func init() {
 		config.SmtpAuth = smtp.PlainAuth("", *opts_smtpUser, *opts_smtpPass, *opts_smtpHost)
 	}
 
+	// setup logger
+	log.SetOutput(os.Stderr)
 }
 
-// readUsers reads and constructs User objects from an input file referred by path.
+// readUsers reads and constructs User objects from the given path of a file.
 // Each line of the file contains two fields separated by spaces, or tabs.  The two fields are
 // 1) email address, 2) username.
 func readUsers(path string) ([]User, error) {
@@ -75,7 +80,19 @@ func readUsers(path string) ([]User, error) {
 
 	liner := bufio.NewScanner(fd)
 	for liner.Scan() {
+		l := strings.TrimSpace(liner.Text())
+
+		// ignore the empty line or the line with '#' as the first charactor
+		if len(l) == 0 || []rune(l)[0] == '#' {
+			continue
+		}
+
 		uinfo := strings.SplitN(liner.Text(), " ", 2)
+		// ignore the line with less than 2 fileds separated by space
+		if len(uinfo) < 2 {
+			log.Warn(fmt.Sprint("invalid recipient: %s", l))
+			continue
+		}
 		users = append(users, User{Email: uinfo[0], Name: uinfo[1]})
 	}
 
@@ -86,6 +103,7 @@ func readUsers(path string) ([]User, error) {
 	return users, nil
 }
 
+// readTemplate reads email content template from the given path of a file.
 func readTemplate(path string) (*Template, error) {
 
 	template := Template{Subject: "", Body: ""}
@@ -122,7 +140,6 @@ func sendMail(config ConfigSMTP, from, to, subject, body string) error {
 
 	// RFC-822 style email message
 	msg := []byte("Subject: " + subject + "\r\n" +
-		"\r\n" +
 		body + "\r\n")
 
 	return smtp.SendMail(addr, config.SmtpAuth, from, []string{to}, msg)
@@ -181,5 +198,6 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		log.Info(fmt.Sprintf("email sent: %s", u.Email))
 	}
 }

@@ -1,1 +1,9 @@
+# each line defines an email recipients with the following format:
+#
+# <recipient emailAddress> <recipient name>
+#
+# Empty lines and lines started with '#' are ignored.
+# Lines with less than two fields separated by a space character are also ignored.
+
 hurngchunlee@icloud.com Hurng-Chun Lee
+h.lee@donders.ru.nl Hong Lee
