@@ -13,7 +13,10 @@ import (
 )
 
 const (
-	EMAIL_NOREPLY = "no-reply@donders.ru.nl"
+	DEFAULT_REPLY_EMAIL = "no-reply@donders.ru.nl"
+	DEFAULT_SMTP_HOST = "smtp-auth.ru.nl"
+	DEFAULT_SMTP_PORT = 25
+	DEFAULT_RECIPIENT_LIST = "recipients.txt"
 )
 
 // Recipient is a data structure of email recipient.
@@ -73,10 +76,10 @@ func usage() {
 }
 
 func init() {
-	opts_userList = flag.String("l", "", "set `path` of the file containing a list of recipients.")
-	opts_fromAddr = flag.String("f", EMAIL_NOREPLY, "set the sender's `email` address.")
-	opts_smtpHost = flag.String("n", "smtp-auth.ru.nl", "set the network `hostname` of the SMTP server.")
-	opts_smtpPort = flag.Int("p", 25, "set the network `port` of the SMTP server.")
+	opts_userList = flag.String("l", DEFAULT_RECIPIENT_LIST, "set `path` of the file containing a list of recipients.")
+	opts_fromAddr = flag.String("f", DEFAULT_REPLY_EMAIL, "set the sender's `email` address.")
+	opts_smtpHost = flag.String("n", DEFAULT_SMTP_HOST, "set the network `hostname` of the SMTP server.")
+	opts_smtpPort = flag.Int("p", DEFAULT_SMTP_PORT, "set the network `port` of the SMTP server.")
 	opts_smtpUser = flag.String("u", "", "set SMTP `username` for PLAIN authentication.")
 	opts_smtpPass = flag.String("s", "", "set SMTP `password` for PLAIN authentication.")
 	flag.Usage = usage
