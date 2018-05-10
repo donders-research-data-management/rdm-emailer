@@ -30,9 +30,31 @@ type ConfigSMTP struct {
 }
 
 // Template is a data structure of email content.
-type Template struct {
-	Subject string
-	Body string
+type EmailTemplate struct {
+	Subject *template.Template
+	Body *template.Template
+}
+
+// Compose applies the given data on the EmailTemplate, and generates the actual
+// subject and body strings.
+func (t *EmailTemplate) Compose(data interface{}) (string, string, error) {
+
+	// derive subject from template
+	subj := bytes.NewBuffer([]byte{})
+	err := t.Subject.Execute(subj, data)
+	if err != nil {
+		return "", "", err
+	}
+
+	// derive body from template
+	body := bytes.NewBuffer([]byte{})
+	err = t.Body.Execute(body, data)
+	if err != nil {
+		return "", "", err
+	}
+
+	// compose 
+	return subj.String(), body.String(), nil
 }
 
 var opts_userList *string
@@ -111,9 +133,7 @@ func readRecipients(path string) ([]Recipient, error) {
 }
 
 // readTemplate reads email content template from the given path of a file.
-func readTemplate(path string) (*Template, error) {
-
-	template := Template{Subject: "", Body: ""}
+func readTemplate(path string) (*EmailTemplate, error) {
 
 	fd, err := os.Open(path)
 
@@ -122,21 +142,33 @@ func readTemplate(path string) (*Template, error) {
 	}
 	defer fd.Close()
 
+	subj := ""
+	body := ""
 	liner := bufio.NewScanner(fd)
 	for liner.Scan() {
 		l := liner.Text()
 		if strings.HasPrefix(l, "Subject:") {
-			template.Subject = strings.TrimSpace(strings.TrimPrefix(l, "Subject:"))
+			subj = strings.TrimSpace(strings.TrimPrefix(l, "Subject:"))
 			continue
 		}
-		template.Body += fmt.Sprintf("%s\n", l)
+		body += fmt.Sprintf("%s\n", l)
 	}
 
 	if err := liner.Err(); err != nil {
 		return nil, err
 	}
 
-	return &template, nil
+	tmpl := EmailTemplate{Subject: nil, Body: nil}
+	tmpl.Subject, err = template.New("subject").Parse(subj)
+	if err != nil {
+		return nil, err
+	}
+	tmpl.Body, err = template.New("body").Parse(body)
+	if err != nil {
+		return nil, err
+	}
+
+	return &tmpl, nil
 }
 
 // sendMail sends email content via a SMTP server.
@@ -154,12 +186,6 @@ func sendMail(config ConfigSMTP, from, to, subject, body string) error {
 
 func main() {
 
-	// reads list of recipients for sending emails
-	recipients, err := readRecipients(*opts_userList)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	// gets template file path from argument
 	args := flag.Args()
 	if len(args) != 1 {
@@ -172,13 +198,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// creates template parsers
-	pSubj, err := template.New("subj").Parse(string(tmpl.Subject))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	pBody, err := template.New("body").Parse(string(tmpl.Body))
+	// reads list of recipients for sending emails
+	recipients, err := readRecipients(*opts_userList)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -186,22 +207,13 @@ func main() {
 	// loop over recipients to send out an email for each user
 	for _, u := range recipients {
 
-		// derive subject from template
-		subj := bytes.NewBuffer([]byte{})
-		err := pSubj.Execute(subj, u)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		// derive body from template
-		body := bytes.NewBuffer([]byte{})
-		err = pBody.Execute(body, u)
+		subj, body, err := tmpl.Compose(u)
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		// sends email
-		err = sendMail(config, *opts_fromAddr, u.Email, string(subj.Bytes()), string(body.Bytes()))
+		err = sendMail(config, *opts_fromAddr, u.Email, subj, body)
 		if err != nil {
 			log.Fatal(err)
 		}
