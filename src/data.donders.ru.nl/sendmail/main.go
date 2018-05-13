@@ -16,7 +16,7 @@ import (
 const (
 	defaultReplyEmail    = "no-reply@donders.ru.nl"
 	defaultSMTPHost      = "smtp-auth.ru.nl"
-	defaultSMTPPort      = 25
+	defaultSMTPPort      = 587
 	defaultRecipientList = "recipients.txt"
 )
 
