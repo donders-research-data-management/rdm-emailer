@@ -1,0 +1,8 @@
+# CSV file of recipients:
+#
+# Each line contains "email" and "name" of a recipient.
+# The two fields are separated by a comma ','.
+# Lines started with '#' is ignored.
+#
+hurngchunlee@icloud.com,Hurng-Chun Lee
+h.lee@donders.ru.nl,Hong Lee

@@ -3,8 +3,10 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"encoding/csv"
 	"flag"
 	"fmt"
+	"io"
 	"net/smtp"
 	"os"
 	"strings"
@@ -17,7 +19,7 @@ const (
 	defaultReplyEmail    = "no-reply@donders.ru.nl"
 	defaultSMTPHost      = "smtp-auth.ru.nl"
 	defaultSMTPPort      = 587
-	defaultRecipientList = "recipients.txt"
+	defaultRecipientList = "recipients.csv"
 )
 
 // Recipient is a data structure of email recipient.
@@ -97,42 +99,31 @@ func init() {
 	log.SetOutput(os.Stderr)
 }
 
-// readRecipients reads and constructs Recipient objects from the given path of a file.
-// Each line of the file contains two fields separated by spaces, or tabs.  The two fields are
-// 1) email address, 2) username.
-func readRecipients(path string) ([]Recipient, error) {
-
+// readRecipients reads and constructs Recipient objects from the given CSV file.
+// Each line of the file contains two fields separated by a comma ','.  The two fields are
+// 1) email address, 2) (display) name.
+func readRecipients(csvfile string) ([]Recipient, error) {
 	recipients := []Recipient{}
 
-	fd, err := os.Open(path)
-
+	fd, err := os.Open(csvfile)
 	if err != nil {
 		return nil, err
 	}
 	defer fd.Close()
 
-	liner := bufio.NewScanner(fd)
-	for liner.Scan() {
-		l := strings.TrimSpace(liner.Text())
-
-		// ignore the empty line or the line with '#' as the first charactor
-		if len(l) == 0 || []rune(l)[0] == '#' {
-			continue
+	reader := csv.NewReader(fd)
+	reader.Comment = '#'
+	for {
+		uinfo, err := reader.Read()
+		if err == io.EOF {
+			break
 		}
-
-		uinfo := strings.SplitN(liner.Text(), " ", 2)
-		// ignore the line with less than 2 fileds separated by space
-		if len(uinfo) < 2 {
-			log.Warn(fmt.Sprintf("invalid recipient: %s", l))
-			continue
+		if err != nil {
+			log.Error(err)
+			break
 		}
 		recipients = append(recipients, Recipient{Email: uinfo[0], Name: uinfo[1]})
 	}
-
-	if err := liner.Err(); err != nil {
-		return nil, err
-	}
-
 	return recipients, nil
 }
 
