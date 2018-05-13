@@ -123,7 +123,7 @@ func readRecipients(path string) ([]Recipient, error) {
 		uinfo := strings.SplitN(liner.Text(), " ", 2)
 		// ignore the line with less than 2 fileds separated by space
 		if len(uinfo) < 2 {
-			log.Warn(fmt.Sprint("invalid recipient: %s", l))
+			log.Warn(fmt.Sprintf("invalid recipient: %s", l))
 			continue
 		}
 		recipients = append(recipients, Recipient{Email: uinfo[0], Name: uinfo[1]})
