@@ -9,14 +9,15 @@ import (
 	"os"
 	"strings"
 	"text/template"
+
 	log "github.com/sirupsen/logrus"
 )
 
 const (
-	DEFAULT_REPLY_EMAIL = "no-reply@donders.ru.nl"
-	DEFAULT_SMTP_HOST = "smtp-auth.ru.nl"
-	DEFAULT_SMTP_PORT = 25
-	DEFAULT_RECIPIENT_LIST = "recipients.txt"
+	defaultReplyEmail    = "no-reply@donders.ru.nl"
+	defaultSMTPHost      = "smtp-auth.ru.nl"
+	defaultSMTPPort      = 25
+	defaultRecipientList = "recipients.txt"
 )
 
 // Recipient is a data structure of email recipient.
@@ -27,15 +28,15 @@ type Recipient struct {
 
 // ConfigSMTP is a data structure of connecting to SMTP server.
 type ConfigSMTP struct {
-	SmtpHost string
-	SmtpPort int
-	SmtpAuth smtp.Auth
+	SMTPHost string
+	SMTPPort int
+	SMTPAuth smtp.Auth
 }
 
-// Template is a data structure of email content.
+// EmailTemplate is a data structure of email content.
 type EmailTemplate struct {
 	Subject *template.Template
-	Body *template.Template
+	Body    *template.Template
 }
 
 // Compose applies the given data on the EmailTemplate, and generates the actual
@@ -56,16 +57,16 @@ func (t *EmailTemplate) Compose(data interface{}) (string, string, error) {
 		return "", "", err
 	}
 
-	// compose 
+	// compose
 	return subj.String(), body.String(), nil
 }
 
-var opts_userList *string
-var opts_fromAddr *string
-var opts_smtpHost *string
-var opts_smtpPort *int
-var opts_smtpUser *string
-var opts_smtpPass *string
+var optsUserList *string
+var optsFromAddr *string
+var optsSMTPHost *string
+var optsSMTPPort *int
+var optsSMTPUser *string
+var optsSMTPPass *string
 
 var config ConfigSMTP
 
@@ -76,20 +77,20 @@ func usage() {
 }
 
 func init() {
-	opts_userList = flag.String("l", DEFAULT_RECIPIENT_LIST, "set `path` of the file containing a list of recipients.")
-	opts_fromAddr = flag.String("f", DEFAULT_REPLY_EMAIL, "set the sender's `email` address.")
-	opts_smtpHost = flag.String("n", DEFAULT_SMTP_HOST, "set the network `hostname` of the SMTP server.")
-	opts_smtpPort = flag.Int("p", DEFAULT_SMTP_PORT, "set the network `port` of the SMTP server.")
-	opts_smtpUser = flag.String("u", "", "set SMTP `username` for PLAIN authentication.")
-	opts_smtpPass = flag.String("s", "", "set SMTP `password` for PLAIN authentication.")
+	optsUserList = flag.String("l", defaultRecipientList, "set `path` of the file containing a list of recipients.")
+	optsFromAddr = flag.String("f", defaultReplyEmail, "set the sender's `email` address.")
+	optsSMTPHost = flag.String("n", defaultSMTPHost, "set the network `hostname` of the SMTP server.")
+	optsSMTPPort = flag.Int("p", defaultSMTPPort, "set the network `port` of the SMTP server.")
+	optsSMTPUser = flag.String("u", "", "set SMTP `username` for PLAIN authentication.")
+	optsSMTPPass = flag.String("s", "", "set SMTP `password` for PLAIN authentication.")
 	flag.Usage = usage
 	flag.Parse()
 
 	// compose the SMTP configuration struct.  The Authentication is only enabled when
-	// the opts_smtpUser is set to non-emtpty string by command-line options.
-	config = ConfigSMTP{SmtpHost: *opts_smtpHost, SmtpPort: *opts_smtpPort, SmtpAuth: nil}
-	if *opts_smtpUser != "" && *opts_smtpPass != "" {
-		config.SmtpAuth = smtp.PlainAuth("", *opts_smtpUser, *opts_smtpPass, *opts_smtpHost)
+	// the optsSMTPUser is set to non-emtpty string by command-line options.
+	config = ConfigSMTP{SMTPHost: *optsSMTPHost, SMTPPort: *optsSMTPPort, SMTPAuth: nil}
+	if *optsSMTPUser != "" && *optsSMTPPass != "" {
+		config.SMTPAuth = smtp.PlainAuth("", *optsSMTPUser, *optsSMTPPass, *optsSMTPHost)
 	}
 
 	// setup logger
@@ -178,13 +179,13 @@ func readTemplate(path string) (*EmailTemplate, error) {
 func sendMail(config ConfigSMTP, from, to, subject, body string) error {
 
 	// SMTP server address
-	addr := fmt.Sprintf("%s:%d", config.SmtpHost, config.SmtpPort)
+	addr := fmt.Sprintf("%s:%d", config.SMTPHost, config.SMTPPort)
 
 	// RFC-822 style email message
 	msg := []byte("Subject: " + subject + "\r\n" +
 		body + "\r\n")
 
-	return smtp.SendMail(addr, config.SmtpAuth, from, []string{to}, msg)
+	return smtp.SendMail(addr, config.SMTPAuth, from, []string{to}, msg)
 }
 
 func main() {
@@ -202,7 +203,7 @@ func main() {
 	}
 
 	// reads list of recipients for sending emails
-	recipients, err := readRecipients(*opts_userList)
+	recipients, err := readRecipients(*optsUserList)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -216,7 +217,7 @@ func main() {
 		}
 
 		// sends email
-		err = sendMail(config, *opts_fromAddr, u.Email, subj, body)
+		err = sendMail(config, *optsFromAddr, u.Email, subj, body)
 		if err != nil {
 			log.Fatal(err)
 		}
