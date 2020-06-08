@@ -1,23 +1,16 @@
-GOPATH := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-PREFIX ?= "/opt/project"
+ifndef GOPATH
+	GOPATH := $(HOME)/go
+endif
+
+ifndef GOOS
+	GOOS := linux
+endif
+
+ifndef GO111MODULE
+	GO111MODULE := on
+endif
 
 all: build
 
-external:
-	@GOPATH=$(GOPATH)  go get ./...
-
-build: external
-	@GOPATH=$(GOPATH) CGO_ENABLED=0  go install ./...
-
-doc:
-	@GOPATH=$(GOPATH)  godoc -http=:6060
-
-test: external
-	@GOPATH=$(GOPATH)  GOCACHE=off go test -v dccn.nl/project/...
-
-install: build
-	@install -D $(GOPATH)/bin/* $(PREFIX)/bin
-
-clean:
-	@rm -rf bin
-	@rm -rf pkg
+build:
+	@GOPATH=$(GOPATH) CGO_ENABLED=0  go install github.com/donders-research-data-management/rdm-emailer 
