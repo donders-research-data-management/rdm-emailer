@@ -7,6 +7,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"time"
 	"net/smtp"
 	"os"
 	"strings"
@@ -213,5 +214,6 @@ func main() {
 			log.Fatal(err)
 		}
 		log.Info(fmt.Sprintf("email sent: %s", u.Email))
+		time.Sleep(100 * time.Millisecond)
 	}
 }
