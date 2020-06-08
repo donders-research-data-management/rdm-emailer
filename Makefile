@@ -13,4 +13,6 @@ endif
 all: build
 
 build:
-	@GOPATH=$(GOPATH) CGO_ENABLED=0  go install github.com/donders-research-data-management/rdm-emailer 
+	@GOPATH=$(GOPATH) CGO_ENABLED=0 go build
+clean:
+	rm -f rdm-emailer
