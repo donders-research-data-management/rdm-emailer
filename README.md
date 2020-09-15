@@ -15,7 +15,7 @@ The executables will be created in the `bin/` directory.
 
 ## Usage
 
-Firstly define an email template, an example can be found in the [template.txt](template.txt) file.  Secondly make a recipient list as shown in the example file [recipients.txt](recipients.txt).
+Firstly define an email template, an example can be found in the [template.txt](template.txt) file.  Secondly make a recipient list as shown in the example file [recipients.csv](recipients.csv).
 
 Run the following command to send the email to all recipients:
 
