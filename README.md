@@ -17,6 +17,8 @@ The executables will be created in the `bin/` directory.
 
 Firstly define an email template, an example can be found in the [template.txt](template.txt) file.  Secondly make a recipient list as shown in the example file [recipients.csv](recipients.csv).
 
+An example script [rdm-get-email-recipients.sh](rdm-get-email-recipients.sh) can be used to dump the `recipients.csv` file from the iCAT.
+
 Run the following command to send the email to all recipients:
 
 ```bash
