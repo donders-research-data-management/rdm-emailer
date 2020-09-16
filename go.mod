@@ -1,4 +1,4 @@
-module github.com/donders-research-data-management/rdm-emailer
+module github.com/donders-research-data-management/rdr-emailer
 
 go 1.14
 
