@@ -11,7 +11,17 @@ The [GO](https://golang.org) compiler is required to build the source code.
 $ make
 ```
 
-The executables will be created in the `bin/` directory.
+The executable `rdr-emailer.linux_amd64` will be created right in the current directory.
+
+## Release on GitHub 
+
+```bash
+$ VERSION=<version> make github-release 
+```
+
+It will create a new release with the `<version>` number and add the executable `rdr-emailer.linux_amd64` as an asset of the release.
+
+It requires authentication to Github using the Github personal token.
 
 ## Usage
 
