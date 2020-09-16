@@ -1,4 +1,1 @@
-bin
-pkg
-src/*
-!src/data.donders.ru.nl
+rdr-emailer.linux_amd64
