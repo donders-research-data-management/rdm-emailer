@@ -1,0 +1,9 @@
+# for service volumes on fremen
+#export API_HOST=https://irulan-mgmt.dccn.nl
+#export API_USER=gatewayadmin
+#export API_PASS=hnvACx7lJO6iqKp1YiSw
+
+# for service volumes on atreides
+export API_HOST=https://filers-gx-mi.dccn.nl
+export API_USER=roadmin
+export API_PASS=4xfzIV1gJ6wfNsIlJnq

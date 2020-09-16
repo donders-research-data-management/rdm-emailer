@@ -1,9 +1,7 @@
+VERSION ?= "master"
+
 ifndef GOPATH
 	GOPATH := $(HOME)/go
-endif
-
-ifndef GOOS
-	GOOS := linux
 endif
 
 ifndef GO111MODULE
@@ -12,7 +10,13 @@ endif
 
 all: build
 
-build:
-	@GOPATH=$(GOPATH) CGO_ENABLED=0 go build
+build: build_linux_amd64
+
+build_linux_amd64:
+	@GOPATH=$(GOPATH) GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o rdr-emailer.linux_amd64
+
+github-release: build
+	scripts/gh-release.sh $(VERSION) false
+
 clean:
-	rm -f rdr-emailer
+	rm -f rdr-emailer.linux_amd64

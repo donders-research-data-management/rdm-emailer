@@ -17,7 +17,7 @@ The executables will be created in the `bin/` directory.
 
 Firstly define an email template, an example can be found in the [template.txt](template.txt) file.  Secondly make a recipient list as shown in the example file [recipients.csv](recipients.csv).
 
-An example script [rdr-get-email-recipients.sh](rdr-get-email-recipients.sh) can be used to dump the `recipients.csv` file containing all repository users.  The script makes use of the `iquest` command.
+An example script [scripts/rdr-get-email-recipients.sh](scripts/rdr-get-email-recipients.sh) can be used to dump the `recipients.csv` file containing all repository users.  The script makes use of the `iquest` command.
 
 Run the following command to send the email to all recipients:
 
