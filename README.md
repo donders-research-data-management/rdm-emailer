@@ -39,7 +39,7 @@ OPTIONS:
   -n hostname
     	set the network hostname of the SMTP server. (default "smtp-auth.ru.nl")
   -p port
-    	set the network port of the SMTP server. (default 25)
+    	set the network port of the SMTP server. (default 587)
   -s password
     	set SMTP password for PLAIN authentication.
   -u username
