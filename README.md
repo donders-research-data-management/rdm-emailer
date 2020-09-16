@@ -33,7 +33,8 @@ An example script [scripts/rdr-get-email-recipients.sh](scripts/rdr-get-email-re
 Run the following command to send the email to all recipients:
 
 ```bash
-$ ./rdr-emailer -f from_address -l recipients.csv -n smtp_host -p smtp_port -u smtp_username -s smtp_password template.txt
+$ ./rdr-emailer -f from_address -l recipients.csv \
+  -n smtp_host -p smtp_port -u smtp_username -s smtp_password template.txt
 ```
 
 The command-line options are provided with `-h` option:
@@ -59,7 +60,7 @@ OPTIONS:
 
 ## Docker container
 
-The [Dockerfile](Dockerfile) is also provided to run rdr-emailer using a docker container.
+The [Dockerfile](Dockerfile) is provided for running rdr-emailer via a docker container.
 
 To build the container, run
 
@@ -76,7 +77,12 @@ $ docker run rdr-emailer
 The following example command shows how to run the rdr-emailer via the container.
 
 ```bash
-$ docker run -v `pwd`/recipients.csv:/recipients.csv -v `pwd`/template.txt:/template.txt rdr-emailer /rdr-emailer -f from_address -l /recipients.csv -n smtp_host -p smtp_port -u smtp_username -s smtp_password /template.txt
+$ docker run -v `pwd`/recipients.csv:/recipients.csv \
+             -v `pwd`/template.txt:/template.txt \
+             rdr-emailer /rdr-emailer \
+             -f from_address -l /recipients.csv \
+             -n smtp_host -p smtp_port \
+             -u smtp_username -s smtp_password /template.txt
 ```
 
 Note that in the command above, we bind-mount `recipients.csv` and `template.txt` in the present working directory (i.e. `pwd`) into `/recipients.csv` and `/template.txt` respectively in the container.
