@@ -7,6 +7,6 @@
 Subject: a test email to {{.Email}}
 Hello {{.Name}},
 
-This is a test email from rdm-emailer.
+This is a test email from rdr-emailer.
 
 Best regards, the support team
