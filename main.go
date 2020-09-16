@@ -3,15 +3,16 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"encoding/base64"
 	"encoding/csv"
 	"flag"
 	"fmt"
 	"io"
-	"time"
 	"net/smtp"
 	"os"
 	"strings"
 	"text/template"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -173,11 +174,23 @@ func sendMail(config ConfigSMTP, from, to, subject, body string) error {
 	// SMTP server address
 	addr := fmt.Sprintf("%s:%d", config.SMTPHost, config.SMTPPort)
 
-	// RFC-822 style email message
-	msg := []byte("Subject: " + subject + "\r\n" +
-		body + "\r\n")
+	// SMTP header with utf-8 content-type
+	header := make(map[string]string)
+	header["From"] = from
+	header["To"] = to
+	header["Subject"] = subject
+	header["MIME-Version"] = "1.0"
+	header["Content-Type"] = "text/plain; charset=\"utf-8\""
+	header["Content-Transfer-Encoding"] = "base64"
 
-	return smtp.SendMail(addr, config.SMTPAuth, from, []string{to}, msg)
+	// compose SMTP message
+	message := ""
+	for k, v := range header {
+		message += fmt.Sprintf("%s: %s\r\n", k, v)
+	}
+	message += "\r\n" + base64.StdEncoding.EncodeToString([]byte(body))
+
+	return smtp.SendMail(addr, config.SMTPAuth, from, []string{to}, []byte(message))
 }
 
 func main() {
