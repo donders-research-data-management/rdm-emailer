@@ -86,3 +86,10 @@ $ docker run -v `pwd`/recipients.csv:/recipients.csv \
 ```
 
 Note that in the command above, we bind-mount `recipients.csv` and `template.txt` in the present working directory (i.e. `pwd`) into `/recipients.csv` and `/template.txt` respectively in the container.
+
+## Running
+An easy way to run this command is by replacing the template.txt and recipients.csv with the actual message and recipients to send to. Then just run the following script to email using the bulk mail server:
+```bash
+$ scripts/email.sh
+```
+No credentials are required for this script, because the bulk server performs authentication on basis of IP address whitelisting. All RDR portal servers have been whitelisted.
